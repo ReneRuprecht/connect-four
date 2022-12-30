@@ -31,7 +31,7 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         // when
-        User expected = userRepository.getUserByName(name);
+        User expected = userRepository.getUserByName(name).get();
 
         // then
         assertThat(expected).isNotNull();
@@ -44,10 +44,10 @@ public class UserRepositoryTest {
         String name = "Muster";
 
         // when
-        User expected = userRepository.getUserByName(name);
+        boolean expected = userRepository.getUserByName(name).isPresent();
 
         // then
-        assertThat(expected).isNull();
+        assertThat(expected).isFalse();
     }
 
     @Test
@@ -61,7 +61,7 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         // when
-        User expected = userRepository.getUserByEmail(email);
+        User expected = userRepository.getUserByEmail(email).get();
 
         // then
         assertThat(expected).isNotNull();
@@ -74,9 +74,9 @@ public class UserRepositoryTest {
         String email = "test@test.com";
 
         // when
-        User expected = userRepository.getUserByEmail(email);
+        boolean expected = userRepository.getUserByEmail(email).isPresent();
 
         // then
-        assertThat(expected).isNull();
+        assertThat(expected).isFalse();
     }
 }
