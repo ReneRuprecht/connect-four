@@ -1,7 +1,7 @@
 package com.example.demo.user;
 
 import org.springframework.stereotype.Service;
-import com.example.demo.user.exception.EmailAlreadyExists;
+import com.example.demo.user.exception.EmailAlreadyExistsException;
 import com.example.demo.user.exception.EmailNotFoundException;
 import com.example.demo.user.exception.UsernameAlreadyExistsException;
 import com.example.demo.user.exception.UsernameNotFoundException;
@@ -16,7 +16,7 @@ public class UserService {
 
     public void createUser(User user) {
         userRepository.getUserByEmail(user.getEmail()).ifPresent(u -> {
-            throw new EmailAlreadyExists(u.getEmail());
+            throw new EmailAlreadyExistsException(u.getEmail());
         });
         userRepository.getUserByName(user.getName()).ifPresent(u -> {
             throw new UsernameAlreadyExistsException(u.getName());

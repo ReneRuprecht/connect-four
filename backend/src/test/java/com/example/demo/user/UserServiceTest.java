@@ -9,7 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import com.example.demo.user.exception.EmailAlreadyExists;
+import com.example.demo.user.exception.EmailAlreadyExistsException;
 import com.example.demo.user.exception.UsernameAlreadyExistsException;
 import com.example.demo.user.exception.UsernameNotFoundException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -60,8 +60,8 @@ public class UserServiceTest {
         Mockito.when(userRepository.getUserByEmail(testEmail))
                 .thenReturn(Optional.of(USER_RECORD_1));
 
-        EmailAlreadyExists actual =
-                assertThrows(EmailAlreadyExists.class, () -> underTest.createUser(USER_RECORD_1));
+        EmailAlreadyExistsException actual = assertThrows(EmailAlreadyExistsException.class,
+                () -> underTest.createUser(USER_RECORD_1));
 
         // then
         assertEquals(String.format("Email %s already exists", testEmail), actual.getMessage());
