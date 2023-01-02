@@ -5,9 +5,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.example.demo.user.config.Constants;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class UsernameNotFoundException extends RuntimeException {
+public class EmailNotFoundException extends RuntimeException {
 
-    public UsernameNotFoundException(String name) {
-        super(String.format(Constants.USERNAME_NOT_FOUND_MESSAGE, name));
+    public EmailNotFoundException(String email) {
+        super(String.format(Constants.EMAIL_NOT_FOUND_MESSAGE, email));
     }
 }
