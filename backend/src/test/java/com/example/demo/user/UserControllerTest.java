@@ -13,12 +13,16 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.example.demo.user.config.Constants;
 import com.example.demo.user.converter.UserResponseConverter;
+import com.example.demo.user.exception.EmailNotFoundException;
+import com.example.demo.user.exception.UsernameNotFoundException;
 import com.example.demo.user.request.GetUserByEmailRequest;
 import com.example.demo.user.request.GetUserByNameRequest;
 import com.example.demo.user.request.UserCreateRequest;
 import com.example.demo.user.response.UserResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -63,10 +67,8 @@ public class UserControllerTest {
 
         }
 
-
-
         @Test
-        void testGetUserByEmail() throws JsonProcessingException, Exception {
+        void shouldGetUserByEmail() throws JsonProcessingException, Exception {
                 GetUserByEmailRequest getUserByEmailRequest = new GetUserByEmailRequest();
                 getUserByEmailRequest.setEmail(USER_RECORD_1.getEmail());
 
@@ -97,7 +99,33 @@ public class UserControllerTest {
         }
 
         @Test
-        void testGetUserByName() throws JsonProcessingException, Exception {
+        void shouldNotGetUserByEmailBecauseEmailDoesNotExist()
+                        throws JsonProcessingException, Exception {
+                GetUserByEmailRequest getUserByEmailRequest = new GetUserByEmailRequest();
+                getUserByEmailRequest.setEmail(USER_RECORD_1.getEmail());
+
+
+                when(userService.getUserByEmail(getUserByEmailRequest.getEmail()))
+                                .thenThrow(new EmailNotFoundException(USER_RECORD_1.getEmail()));
+
+                ResultActions result =
+                                mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_EMAIL_URL)
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(objectMapper.writeValueAsString(
+                                                                getUserByEmailRequest)));
+
+                verify(userService).getUserByEmail(getUserByEmailRequest.getEmail());
+
+                result.andExpect(status().is4xxClientError()).andExpect(e -> assertTrue(
+                                e.getResolvedException() instanceof EmailNotFoundException))
+                                .andExpect(mvcResult -> assertEquals(
+                                                String.format(Constants.EMAIL_NOT_FOUND_MESSAGE,
+                                                                USER_RECORD_1.getEmail()),
+                                                mvcResult.getResolvedException().getMessage()));
+        }
+
+        @Test
+        void shouldGetUserByName() throws JsonProcessingException, Exception {
                 GetUserByNameRequest getUserByNameRequest = new GetUserByNameRequest();
                 getUserByNameRequest.setName(USER_RECORD_1.getName());
 
@@ -126,4 +154,31 @@ public class UserControllerTest {
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").exists())
                                 .andExpect(status().isOk());
         }
+
+        @Test
+        void shouldNotGetUserByNameBecauseUsernameDoesNotExist()
+                        throws JsonProcessingException, Exception {
+                GetUserByNameRequest getUserByNameRequest = new GetUserByNameRequest();
+                getUserByNameRequest.setName(USER_RECORD_1.getName());
+
+                when(userService.getUserByName(getUserByNameRequest.getName())).thenThrow(
+                                new UsernameNotFoundException(getUserByNameRequest.getName()));
+
+
+                ResultActions result =
+                                mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_NAME_URL)
+                                                .contentType(MediaType.APPLICATION_JSON)
+                                                .content(objectMapper.writeValueAsString(
+                                                                getUserByNameRequest)));
+
+                verify(userService).getUserByName(getUserByNameRequest.getName());
+
+                result.andExpect(status().is4xxClientError()).andExpect(mvcResult -> assertTrue(
+                                mvcResult.getResolvedException() instanceof UsernameNotFoundException))
+                                .andExpect(mvcResult -> assertEquals(
+                                                String.format(Constants.USERNAME_NOT_FOUND_MESSAGE,
+                                                                getUserByNameRequest.getName()),
+                                                mvcResult.getResolvedException().getMessage()));
+        }
+
 }
