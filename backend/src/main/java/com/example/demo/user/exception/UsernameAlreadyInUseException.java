@@ -8,7 +8,7 @@ import com.example.demo.user.config.Constants;
 public class UsernameAlreadyInUseException extends RuntimeException {
 
     public UsernameAlreadyInUseException(String name) {
-        super(String.format(Constants.USERNAME_ALREADY_IN_USE_MESSAGE, name));
+        super(String.format(Constants.USERNAME_ALREADY_EXISTS, name));
     }
 
 }

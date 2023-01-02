@@ -9,8 +9,8 @@ public final class Constants {
 
     // Exception messages
     public static final String USERNAME_NOT_FOUND_MESSAGE = "Username %s not found";
-    public static final String USERNAME_ALREADY_IN_USE_MESSAGE = "Username %s already exists";
+    public static final String USERNAME_ALREADY_EXISTS = "Username %s already exists";
 
     public static final String EMAIL_NOT_FOUND_MESSAGE = "Email %s not found";
-    public static final String EMAIL_ALREADY_IN_USE_MESSAGE = "Email %s already exists";
+    public static final String EMAIL_ALREADY_EXISTS = "Email %s already exists";
 }
