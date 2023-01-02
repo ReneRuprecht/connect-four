@@ -3,7 +3,7 @@ package com.example.demo.user;
 import org.springframework.stereotype.Service;
 import com.example.demo.user.exception.EmailAlreadyExists;
 import com.example.demo.user.exception.EmailNotFoundException;
-import com.example.demo.user.exception.UsernameAlreadyInUseException;
+import com.example.demo.user.exception.UsernameAlreadyExistsException;
 import com.example.demo.user.exception.UsernameNotFoundException;
 import lombok.AllArgsConstructor;
 
@@ -19,7 +19,7 @@ public class UserService {
             throw new EmailAlreadyExists(u.getEmail());
         });
         userRepository.getUserByName(user.getName()).ifPresent(u -> {
-            throw new UsernameAlreadyInUseException(u.getName());
+            throw new UsernameAlreadyExistsException(u.getName());
         });
 
         userRepository.save(user);

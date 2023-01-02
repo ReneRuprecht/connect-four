@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.example.demo.user.exception.EmailAlreadyExists;
-import com.example.demo.user.exception.UsernameAlreadyInUseException;
+import com.example.demo.user.exception.UsernameAlreadyExistsException;
 import com.example.demo.user.exception.UsernameNotFoundException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,7 +77,7 @@ public class UserServiceTest {
         // when
         Mockito.when(userRepository.getUserByName(testName)).thenReturn(Optional.of(USER_RECORD_1));
 
-        UsernameAlreadyInUseException actual = assertThrows(UsernameAlreadyInUseException.class,
+        UsernameAlreadyExistsException actual = assertThrows(UsernameAlreadyExistsException.class,
                 () -> underTest.createUser(USER_RECORD_1));
 
         // then
