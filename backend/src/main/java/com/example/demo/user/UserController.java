@@ -26,29 +26,27 @@ public class UserController {
 
         userService.createUser(userCreateRequest.getUser());
 
-        return ResponseEntity.status(201).body(userCreateRequest.getUser().getEmail());
+        return ResponseEntity.status(201)
+            .body(userCreateRequest.getUser()
+                .getEmail());
     }
 
     @PostMapping(Constants.USER_GET_BY_NAME_URL)
-    public ResponseEntity<UserResponse> getUserByName(
-            @RequestBody GetUserByNameRequest getUserByNameRequest) {
-
+    public ResponseEntity<UserResponse> getUserByName(@RequestBody GetUserByNameRequest getUserByNameRequest) {
 
         User user = userService.getUserByName(getUserByNameRequest.getName());
 
-
-        return ResponseEntity.ok().body(userResponseConverter.convertToUserResponseFromUser(user));
+        return ResponseEntity.ok()
+            .body(userResponseConverter.convertToUserResponseFromUser(user));
     }
 
     @PostMapping(Constants.USER_GET_BY_EMAIL_URL)
-    public ResponseEntity<UserResponse> getUserByEmail(
-            @RequestBody GetUserByEmailRequest getUserByEmailRequest) {
+    public ResponseEntity<UserResponse> getUserByEmail(@RequestBody GetUserByEmailRequest getUserByEmailRequest) {
 
         User user = userService.getUserByEmail(getUserByEmailRequest.getEmail());
 
-        return ResponseEntity.ok().body(userResponseConverter.convertToUserResponseFromUser(user));
+        return ResponseEntity.ok()
+            .body(userResponseConverter.convertToUserResponseFromUser(user));
     }
-
-
 
 }

@@ -13,21 +13,23 @@ public class UserService {
 
     private UserRepository userRepository;
 
-
     public void createUser(User user) {
-        userRepository.getUserByEmail(user.getEmail()).ifPresent(u -> {
-            throw new EmailAlreadyExistsException(u.getEmail());
-        });
-        userRepository.getUserByName(user.getName()).ifPresent(u -> {
-            throw new UsernameAlreadyExistsException(u.getName());
-        });
+        userRepository.getUserByEmail(user.getEmail())
+            .ifPresent(u -> {
+                throw new EmailAlreadyExistsException(u.getEmail());
+            });
+
+        userRepository.getUserByName(user.getName())
+            .ifPresent(u -> {
+                throw new UsernameAlreadyExistsException(u.getName());
+            });
 
         userRepository.save(user);
     }
 
     public void deleteUserByName(String name) {
         User user = userRepository.getUserByName(name)
-                .orElseThrow(() -> new UsernameNotFoundException(name));
+            .orElseThrow(() -> new UsernameNotFoundException(name));
 
         userRepository.delete(user);
     }
@@ -35,13 +37,13 @@ public class UserService {
     public User getUserByName(String name) {
 
         return userRepository.getUserByName(name)
-                .orElseThrow(() -> new UsernameNotFoundException(name));
+            .orElseThrow(() -> new UsernameNotFoundException(name));
     }
 
     public User getUserByEmail(String email) {
 
         return userRepository.getUserByEmail(email)
-                .orElseThrow(() -> new EmailNotFoundException(email));
+            .orElseThrow(() -> new EmailNotFoundException(email));
 
     }
 

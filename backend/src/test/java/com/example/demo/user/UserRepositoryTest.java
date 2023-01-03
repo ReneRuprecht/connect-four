@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-
 @DataJpaTest
 @AutoConfigureTestDatabase
 public class UserRepositoryTest {
@@ -31,7 +30,8 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         // when
-        User expected = userRepository.getUserByName(name).get();
+        User expected = userRepository.getUserByName(name)
+            .get();
 
         // then
         assertThat(expected).isNotNull();
@@ -44,7 +44,8 @@ public class UserRepositoryTest {
         String name = "Muster";
 
         // when
-        boolean expected = userRepository.getUserByName(name).isPresent();
+        boolean expected = userRepository.getUserByName(name)
+            .isPresent();
 
         // then
         assertThat(expected).isFalse();
@@ -61,7 +62,8 @@ public class UserRepositoryTest {
         userRepository.save(user);
 
         // when
-        User expected = userRepository.getUserByEmail(email).get();
+        User expected = userRepository.getUserByEmail(email)
+            .get();
 
         // then
         assertThat(expected).isNotNull();
@@ -74,7 +76,8 @@ public class UserRepositoryTest {
         String email = "test@test.com";
 
         // when
-        boolean expected = userRepository.getUserByEmail(email).isPresent();
+        boolean expected = userRepository.getUserByEmail(email)
+            .isPresent();
 
         // then
         assertThat(expected).isFalse();

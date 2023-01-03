@@ -26,7 +26,6 @@ public class UserServiceTest {
 
     User USER_RECORD_1 = new User("Muster", "test@test.com", "123");
 
-
     @BeforeEach
     void setUp() {
         underTest = new UserService(userRepository);
@@ -45,7 +44,6 @@ public class UserServiceTest {
 
         User capturedUser = userArgumentCaptor.getValue();
 
-
         assertThat(capturedUser).isEqualTo(USER_RECORD_1);
 
     }
@@ -58,7 +56,7 @@ public class UserServiceTest {
 
         // when
         Mockito.when(userRepository.getUserByEmail(testEmail))
-                .thenReturn(Optional.of(USER_RECORD_1));
+            .thenReturn(Optional.of(USER_RECORD_1));
 
         EmailAlreadyExistsException actual = assertThrows(EmailAlreadyExistsException.class,
                 () -> underTest.createUser(USER_RECORD_1));
@@ -75,7 +73,8 @@ public class UserServiceTest {
         String testName = USER_RECORD_1.getName();
 
         // when
-        Mockito.when(userRepository.getUserByName(testName)).thenReturn(Optional.of(USER_RECORD_1));
+        Mockito.when(userRepository.getUserByName(testName))
+            .thenReturn(Optional.of(USER_RECORD_1));
 
         UsernameAlreadyExistsException actual = assertThrows(UsernameAlreadyExistsException.class,
                 () -> underTest.createUser(USER_RECORD_1));
@@ -85,14 +84,12 @@ public class UserServiceTest {
 
     }
 
-
     @Test
     void shouldDeleteUserByName() {
 
         // when
         Mockito.when(userRepository.getUserByName(USER_RECORD_1.getName()))
-                .thenReturn(Optional.of(USER_RECORD_1));
-
+            .thenReturn(Optional.of(USER_RECORD_1));
 
         underTest.deleteUserByName(USER_RECORD_1.getName());
 
@@ -102,7 +99,6 @@ public class UserServiceTest {
         verify(userRepository).delete(userArgumentCaptor.capture());
 
         User capturedUser = userArgumentCaptor.getValue();
-
 
         assertThat(capturedUser).isEqualTo(USER_RECORD_1);
     }
@@ -115,18 +111,15 @@ public class UserServiceTest {
                 () -> underTest.deleteUserByName(USER_RECORD_1.getName()));
 
         // then
-        assertEquals(String.format("Username %s not found", USER_RECORD_1.getName()),
-                actual.getMessage());
+        assertEquals(String.format("Username %s not found", USER_RECORD_1.getName()), actual.getMessage());
     }
-
-
 
     @Test
     void shouldGetUserByEmail() {
 
         // when
         Mockito.when(userRepository.getUserByEmail(USER_RECORD_1.getName()))
-                .thenReturn(Optional.of(USER_RECORD_1));
+            .thenReturn(Optional.of(USER_RECORD_1));
 
         User actual = underTest.getUserByEmail(USER_RECORD_1.getName());
 
@@ -138,7 +131,7 @@ public class UserServiceTest {
     void shouldGetUserByName() {
         // when
         Mockito.when(userRepository.getUserByName(USER_RECORD_1.getName()))
-                .thenReturn(Optional.of(USER_RECORD_1));
+            .thenReturn(Optional.of(USER_RECORD_1));
 
         User actual = underTest.getUserByName(USER_RECORD_1.getName());
 
