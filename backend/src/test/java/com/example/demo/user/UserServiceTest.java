@@ -24,12 +24,17 @@ public class UserServiceTest {
 
     private UserService underTest;
 
-    User USER_RECORD_1 = new User("Muster", "test@test.com", "123", Role.USER);
+    User USER_RECORD_1;
 
     @BeforeEach
     void setUp() {
         underTest = new UserService(userRepository);
-
+        USER_RECORD_1 = User.builder()
+            .name("Muster")
+            .email("test@email.com")
+            .password("123")
+            .role(Role.USER)
+            .build();
     }
 
     @Test

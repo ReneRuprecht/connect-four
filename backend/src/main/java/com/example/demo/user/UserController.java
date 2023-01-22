@@ -21,16 +21,6 @@ public class UserController {
     private UserService userService;
     private UserResponseConverter userResponseConverter;
 
-    @PostMapping(Constants.USER_CREATE_URL)
-    public ResponseEntity<String> createUser(@RequestBody UserCreateRequest userCreateRequest) {
-
-        userService.createUser(userCreateRequest.getUser());
-
-        return ResponseEntity.status(201)
-            .body(userCreateRequest.getUser()
-                .getEmail());
-    }
-
     @PostMapping(Constants.USER_GET_BY_NAME_URL)
     public ResponseEntity<UserResponse> getUserByName(@RequestBody GetUserByNameRequest getUserByNameRequest) {
 

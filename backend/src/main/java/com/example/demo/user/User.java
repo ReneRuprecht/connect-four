@@ -45,13 +45,6 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    public User(String name, String email, String password, Role role) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

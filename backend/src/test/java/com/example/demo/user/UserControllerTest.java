@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -14,14 +15,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.example.demo.security.jwt.JwtAuthenticationFilter;
-import com.example.demo.security.jwt.JwtService;
 import com.example.demo.user.config.Constants;
 import com.example.demo.user.converter.UserResponseConverter;
 import com.example.demo.user.exception.EmailNotFoundException;
 import com.example.demo.user.exception.UserNameNotFoundException;
 import com.example.demo.user.request.GetUserByEmailRequest;
 import com.example.demo.user.request.GetUserByNameRequest;
-import com.example.demo.user.request.UserCreateRequest;
 import com.example.demo.user.response.UserResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(value = UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
 
@@ -46,8 +46,6 @@ public class UserControllerTest {
         @MockBean
         UserService userService;
 
-        JwtService jwtService;
-
         @MockBean
         JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -57,33 +55,18 @@ public class UserControllerTest {
         @Autowired
         ObjectMapper objectMapper;
 
-        User USER_RECORD_1 = new User("Muster", "test@email.com", "123", Role.USER);
+        User USER_RECORD_1;
+
         String URL_PREFIX = "/api/v1/users";
 
         @BeforeEach
         void setUp() {
-                jwtService = new JwtService();
-
-        }
-
-        @Test
-        void shouldCreateUser() throws Exception {
-                // given
-                UserCreateRequest userCreateRequest = UserCreateRequest.builder()
-                        .user(USER_RECORD_1)
+                USER_RECORD_1 = User.builder()
+                        .name("Muster")
+                        .email("test@email.com")
+                        .password("123")
+                        .role(Role.USER)
                         .build();
-
-                String token = jwtService.generateToken(USER_RECORD_1);
-
-                ResultActions result = mockMvc
-                        .perform(post(URL_PREFIX + Constants.USER_CREATE_URL).contentType(MediaType.APPLICATION_JSON)
-                                .header("Authorization", token)
-                                .content(objectMapper.writeValueAsString(userCreateRequest)));
-
-                result.andExpect(MockMvcResultMatchers.content()
-                        .string(USER_RECORD_1.getEmail()))
-                        .andExpect(status().isCreated());
-
         }
 
         @Test
@@ -98,15 +81,12 @@ public class UserControllerTest {
                         .email(USER_RECORD_1.getEmail())
                         .build();
 
-                String token = jwtService.generateToken(USER_RECORD_1);
-
                 when(userService.getUserByEmail(getUserByEmailRequest.getEmail())).thenReturn(USER_RECORD_1);
 
                 when(userResponseConverter.convertToUserResponseFromUser(USER_RECORD_1)).thenReturn(userResponse);
 
                 ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_EMAIL_URL)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("Authorization", "Bearer " + token)
                         .content(objectMapper.writeValueAsString(getUserByEmailRequest)));
 
                 verify(userService).getUserByEmail(getUserByEmailRequest.getEmail());
