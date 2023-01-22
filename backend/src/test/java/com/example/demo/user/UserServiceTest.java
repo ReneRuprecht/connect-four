@@ -24,7 +24,7 @@ public class UserServiceTest {
 
     private UserService underTest;
 
-    User USER_RECORD_1 = new User("Muster", "test@test.com", "123");
+    User USER_RECORD_1 = new User("Muster", "test@test.com", "123", Role.USER);
 
     @BeforeEach
     void setUp() {

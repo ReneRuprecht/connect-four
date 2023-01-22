@@ -25,7 +25,12 @@ public class UserRepositoryTest {
         // given
         String name = "Muster";
 
-        User user = new User("Muster", "test@test.com", "123");
+        User user = User.builder()
+            .name("Muster")
+            .email("test@test.com")
+            .password("123")
+            .role(Role.USER)
+            .build();
 
         userRepository.save(user);
 
@@ -57,7 +62,12 @@ public class UserRepositoryTest {
         // given
         String email = "test@test.com";
 
-        User user = new User("Muster", "test@test.com", "123");
+        User user = User.builder()
+            .name("Muster")
+            .email("test@test.com")
+            .password("123")
+            .role(Role.USER)
+            .build();
 
         userRepository.save(user);
 

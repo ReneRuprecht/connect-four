@@ -1,0 +1,29 @@
+POST http://localhost:8080/api/v1/auth/register
+content-type: application/json
+
+{
+    "username": "u",
+    "email": "e",
+    "password": "123"
+}
+
+### login
+# @name postLogin
+POST http://localhost:8080/api/v1/auth/authenticate
+content-type: application/json
+
+{
+    "email": "e",
+    "password": "123"
+}
+
+@token = {{postLogin.response.body.token}}
+
+###
+POST http://localhost:8080/api/v1/users/get-by-email
+content-type: application/json
+Authorization: Bearer {{ token }}
+
+{
+    "email": "e"
+}
