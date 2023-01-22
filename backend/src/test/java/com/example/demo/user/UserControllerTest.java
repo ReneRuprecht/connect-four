@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.example.demo.user.config.Constants;
 import com.example.demo.user.converter.UserResponseConverter;
 import com.example.demo.user.exception.EmailNotFoundException;
-import com.example.demo.user.exception.UsernameNotFoundException;
+import com.example.demo.user.exception.UserNameNotFoundException;
 import com.example.demo.user.request.GetUserByEmailRequest;
 import com.example.demo.user.request.GetUserByNameRequest;
 import com.example.demo.user.request.UserCreateRequest;
@@ -151,7 +151,7 @@ public class UserControllerTest {
                 getUserByNameRequest.setName(USER_RECORD_1.getName());
 
                 when(userService.getUserByName(getUserByNameRequest.getName()))
-                        .thenThrow(new UsernameNotFoundException(getUserByNameRequest.getName()));
+                        .thenThrow(new UserNameNotFoundException(getUserByNameRequest.getName()));
 
                 ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_NAME_URL)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -161,7 +161,7 @@ public class UserControllerTest {
 
                 result.andExpect(status().is4xxClientError())
                         .andExpect(mvcResult -> assertTrue(
-                                        mvcResult.getResolvedException() instanceof UsernameNotFoundException))
+                                        mvcResult.getResolvedException() instanceof UserNameNotFoundException))
                         .andExpect(mvcResult -> assertEquals(
                                         String.format(Constants.USERNAME_NOT_FOUND_MESSAGE,
                                                         getUserByNameRequest.getName()),

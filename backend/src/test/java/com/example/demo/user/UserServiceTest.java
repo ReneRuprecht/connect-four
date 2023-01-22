@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import com.example.demo.user.exception.EmailAlreadyExistsException;
 import com.example.demo.user.exception.UsernameAlreadyExistsException;
-import com.example.demo.user.exception.UsernameNotFoundException;
+import com.example.demo.user.exception.UserNameNotFoundException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -107,7 +107,7 @@ public class UserServiceTest {
     void shouldNotDeleteUserByNameButThrowUserNameNotFoundExceptopn() {
 
         // when
-        UsernameNotFoundException actual = assertThrows(UsernameNotFoundException.class,
+        UserNameNotFoundException actual = assertThrows(UserNameNotFoundException.class,
                 () -> underTest.deleteUserByName(USER_RECORD_1.getName()));
 
         // then

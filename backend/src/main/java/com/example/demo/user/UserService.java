@@ -3,8 +3,8 @@ package com.example.demo.user;
 import org.springframework.stereotype.Service;
 import com.example.demo.user.exception.EmailAlreadyExistsException;
 import com.example.demo.user.exception.EmailNotFoundException;
+import com.example.demo.user.exception.UserNameNotFoundException;
 import com.example.demo.user.exception.UsernameAlreadyExistsException;
-import com.example.demo.user.exception.UsernameNotFoundException;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -29,7 +29,7 @@ public class UserService {
 
     public void deleteUserByName(String name) {
         User user = userRepository.getUserByName(name)
-            .orElseThrow(() -> new UsernameNotFoundException(name));
+            .orElseThrow(() -> new UserNameNotFoundException(name));
 
         userRepository.delete(user);
     }
@@ -37,7 +37,7 @@ public class UserService {
     public User getUserByName(String name) {
 
         return userRepository.getUserByName(name)
-            .orElseThrow(() -> new UsernameNotFoundException(name));
+            .orElseThrow(() -> new UserNameNotFoundException(name));
     }
 
     public User getUserByEmail(String email) {
