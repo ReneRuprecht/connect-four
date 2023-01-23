@@ -6,39 +6,43 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.example.demo.security.jwt.JwtAuthenticationFilter;
 import com.example.demo.user.config.Constants;
 import com.example.demo.user.converter.UserResponseConverter;
-import com.example.demo.user.exception.EmailNotFoundException;
-import com.example.demo.user.exception.UserNameNotFoundException;
 import com.example.demo.user.request.GetUserByEmailRequest;
 import com.example.demo.user.request.GetUserByNameRequest;
 import com.example.demo.user.response.UserResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 
 @WebMvcTest(value = UserController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
+
 public class UserControllerTest {
 
-        @Autowired
         MockMvc mockMvc;
+
+        @Autowired
+        private WebApplicationContext context;
 
         @Mock
         UserRepository userRepository;
@@ -48,6 +52,9 @@ public class UserControllerTest {
 
         @MockBean
         JwtAuthenticationFilter jwtAuthenticationFilter;
+
+        @MockBean
+        UserDetailsService userDetailsService;
 
         @MockBean
         UserResponseConverter userResponseConverter;
@@ -61,16 +68,22 @@ public class UserControllerTest {
 
         @BeforeEach
         void setUp() {
+
+                this.mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                        .apply(springSecurity())
+                        .build();
+
                 USER_RECORD_1 = User.builder()
                         .name("Muster")
                         .email("test@email.com")
                         .password("123")
                         .role(Role.USER)
                         .build();
+
         }
 
         @Test
-
+        @WithMockUser()
         void shouldGetUserByEmail() throws Exception {
                 GetUserByEmailRequest getUserByEmailRequest = new GetUserByEmailRequest();
                 getUserByEmailRequest.setEmail(USER_RECORD_1.getEmail());
@@ -85,42 +98,36 @@ public class UserControllerTest {
 
                 when(userResponseConverter.convertToUserResponseFromUser(USER_RECORD_1)).thenReturn(userResponse);
 
-                ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_EMAIL_URL)
+                ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_EMAIL_URL).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getUserByEmailRequest)));
 
                 verify(userService).getUserByEmail(getUserByEmailRequest.getEmail());
 
-                result.andExpect(MockMvcResultMatchers.jsonPath("$.name")
-                        .exists())
-                        .andExpect(MockMvcResultMatchers.jsonPath("$.email")
+                result.andExpect(status().isOk())
+                        .andExpect(MockMvcResultMatchers.jsonPath("$.name")
                                 .exists())
-                        .andExpect(status().isOk());
+                        .andExpect(MockMvcResultMatchers.jsonPath("$.email")
+                                .exists());
+
         }
 
         @Test
-        void shouldNotGetUserByEmailBecauseEmailDoesNotExist() throws JsonProcessingException, Exception {
+        @WithAnonymousUser
+        void shouldNotGetUserByEmailBecauseOfUnauthorizedRequest() throws JsonProcessingException, Exception {
                 GetUserByEmailRequest getUserByEmailRequest = new GetUserByEmailRequest();
                 getUserByEmailRequest.setEmail(USER_RECORD_1.getEmail());
 
-                when(userService.getUserByEmail(getUserByEmailRequest.getEmail()))
-                        .thenThrow(new EmailNotFoundException(USER_RECORD_1.getEmail()));
-
-                ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_EMAIL_URL)
+                ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_EMAIL_URL).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getUserByEmailRequest)));
 
-                verify(userService).getUserByEmail(getUserByEmailRequest.getEmail());
+                result.andExpect(status().is(401));
 
-                result.andExpect(status().is4xxClientError())
-                        .andExpect(e -> assertTrue(e.getResolvedException() instanceof EmailNotFoundException))
-                        .andExpect(mvcResult -> assertEquals(
-                                        String.format(Constants.EMAIL_NOT_FOUND_MESSAGE, USER_RECORD_1.getEmail()),
-                                        mvcResult.getResolvedException()
-                                                .getMessage()));
         }
 
         @Test
+        @WithMockUser
         void shouldGetUserByName() throws JsonProcessingException, Exception {
                 GetUserByNameRequest getUserByNameRequest = new GetUserByNameRequest();
                 getUserByNameRequest.setName(USER_RECORD_1.getName());
@@ -135,7 +142,7 @@ public class UserControllerTest {
 
                 when(userResponseConverter.convertToUserResponseFromUser(USER_RECORD_1)).thenReturn(userResponse);
 
-                ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_NAME_URL)
+                ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_NAME_URL).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getUserByNameRequest)));
 
@@ -149,27 +156,16 @@ public class UserControllerTest {
         }
 
         @Test
-        void shouldNotGetUserByNameBecauseUsernameDoesNotExist() throws JsonProcessingException, Exception {
+        @WithAnonymousUser
+        void shouldNotGetUserByNameBecauseOfUnauthorizedRequest() throws JsonProcessingException, Exception {
                 GetUserByNameRequest getUserByNameRequest = new GetUserByNameRequest();
                 getUserByNameRequest.setName(USER_RECORD_1.getName());
 
-                when(userService.getUserByName(getUserByNameRequest.getName()))
-                        .thenThrow(new UserNameNotFoundException(getUserByNameRequest.getName()));
-
-                ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_NAME_URL)
+                ResultActions result = mockMvc.perform(post(URL_PREFIX + Constants.USER_GET_BY_NAME_URL).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(getUserByNameRequest)));
 
-                verify(userService).getUserByName(getUserByNameRequest.getName());
-
-                result.andExpect(status().is4xxClientError())
-                        .andExpect(mvcResult -> assertTrue(
-                                        mvcResult.getResolvedException() instanceof UserNameNotFoundException))
-                        .andExpect(mvcResult -> assertEquals(
-                                        String.format(Constants.USERNAME_NOT_FOUND_MESSAGE,
-                                                        getUserByNameRequest.getName()),
-                                        mvcResult.getResolvedException()
-                                                .getMessage()));
+                result.andExpect(status().is(401));
         }
 
 }
