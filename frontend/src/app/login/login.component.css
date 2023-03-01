@@ -1,0 +1,16 @@
+.wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.card {
+  justify-content: center;
+  display: flex;
+  -webkit-box-shadow: 3px 5px 9px 5px rgba(0, 0, 0, 0.46);
+  box-shadow: 3px 5px 9px 5px rgba(0, 0, 0, 0.46);
+  margin-top: 50px;
+}
+
+.card-actions {
+  justify-content: center;
+}
